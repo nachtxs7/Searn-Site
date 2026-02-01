@@ -8,7 +8,7 @@ const PORT = 3000
 
 app.use(express.urlencoded({ extended: true}))
 app.use(express.json())
-app.use(express.static('public'))
+app.use(express.static('frontend'))
 
 app.use(session({
     secret: 'molestadinho', // use qualquer senha, mas coloque uma segura
@@ -18,6 +18,13 @@ app.use(session({
 
 // Rota de cadastro
 app.post('/index', async(req, res)=>{
+
+    const { nome, email, password } = req.body
+
+    if(!nome || !email || !password){
+        return res.send('Preencha todos os campos') // obrigatorio preencer os campos
+    }
+
     try {
         const exists = await db.query('SELECT 1 FROM users WHERE email = $1', [email])
 
@@ -35,7 +42,7 @@ app.post('/index', async(req, res)=>{
 
     } catch (error) {
         console.error(error)
-        alert('Erro no cadastro')
+        res.send('Erro no cadastro')
     }
 })
 
@@ -61,26 +68,26 @@ app.post('/login', async (req, res) =>{
             return res.send('Senha incorreta')
         }
 
-        req.session.userId = user.userId
-        res.redirect('pages/dashboard.html')
+        req.session.userId = user.id
+        res.redirect('/dashboard')
     } catch (error) {
-        alert('Erro no login')
+        res.send('Erro no login')
     }
 })
 
 // Rota do dashboard protegida
-app.get('/dashboard', (req, res)=>{
+app.get('/dashboard', (req, res) =>{
     if (!req.session.userId){
         return res.redirect('/pages/login.html') // isso faz com que o usuario não possa acessar sem estar logado
     }
-    res.sendFile(__dirname + 'frontend/pages/dashboard') // quando o usurio estiver logado, ele entra na pagina
+    res.sendFile(__dirname + '/frontend/pages/dashboard.html') // quando o usurio estiver logado, ele entra na pagina
 })
 
 
 // Rota de logout
 app.get('/logout', (req, res) =>{
     req.session.destroy() // vai destruir a sessão do usuario após ele sair 
-    res.redirect('pages/login.html')
+    res.redirect('/pages/login.html')
     // quando a sessão for destruida, ele volta para a pagina de login
 })
 
