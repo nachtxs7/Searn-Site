@@ -86,7 +86,7 @@ app.get('/dashboard', (req, res) =>{
 
 // Rota de logout
 app.get('/logout', (req, res) =>{
-    req.session.destroy() // vai destruir a sessão do usuario após ele sair 
+    req.session.destroy() // destroi a sessão do usuario após ele sair 
     res.redirect('/pages/login.html')
     // quando a sessão for destruida, ele volta para a pagina de login
 })
